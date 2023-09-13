@@ -1,0 +1,20 @@
+{
+  "name": "learn-npm",
+  "version": "1.0.0",
+  "description": "Belajar NodeJS",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js",
+    "trial": "ls",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Randi Himawan",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "validator": "^13.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

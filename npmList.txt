@@ -1,0 +1,5 @@
+npm nodemon
+npm chalk
+npm validator
+npm yargs@16.2.0
+npm express

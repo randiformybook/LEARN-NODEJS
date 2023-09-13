@@ -1,0 +1,14 @@
+<h1>Talking about WEBSERVER</h1>
+<% if (mahasiswa.length < 1) { %>
+<h3>Daftar Mahasiswa Kosong</h3>
+<% } else { %> <% mahasiswa.forEach(mhs => { %>
+<ul>
+  <li>Nama : <%= mhs.nama %></li>
+  <li>Umur : <%= mhs.umur %> tahun</li>
+  <li>Email : <%= mhs.email %></li>
+</ul>
+<!-- prettier-ignore -->
+<% }) %>
+  <%}%> 
+
+  <% const nama = "Randi Himawan"; %>
