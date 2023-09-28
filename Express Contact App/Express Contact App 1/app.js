@@ -1,7 +1,7 @@
 const express = require("express");
 const expressLayouts = require("express-ejs-layouts");
-// const morgan = require("morgan");
 const app = express();
+const { loadContact, findContact } = require("./utils/contacts-system.js");
 const port = 3000;
 
 //Gunakan EJS
@@ -47,23 +47,24 @@ app.get("/about", (req, res) => {
 });
 
 app.get("/contact", (req, res) => {
-  // res.sendFile('contact.html',{root : __dirname});
+  const contacts = loadContact();
+
   res.render("contact", {
     title: "Halaman Contact",
     layout: "layouts/main-layout",
+    contacts,
   });
 });
 
-// app.get("/product/:id/category/:id_cat", (req, res) => {
-//   res.send(`Product ID : ${req.params.id}<br>
-//     Category ID: ${req.params.id_cat}`);
-// });
+app.get("/contact/:nama", (req, res) => {
+  const contact = findContact(req.params.nama);
 
-// app.get("/product/:id", (req, res) => {
-//   res.send(`Product ID : ${req.params.id}<br>
-//     Category : ${req.query.category}`);
-// });
-
+  res.render("detail", {
+    title: "Halaman Detail Contact",
+    layout: "layouts/main-layout",
+    contact,
+  });
+});
 //app.use biasanya digunakan untuk menanganin file/ data yang tidak ada, jadi apapun yg tidak ada, akan dikembalikan ke app.use
 //jangan letakan ini diatas, karena nt apapun datanya, walaupun ada, akan tetep menjalankan app.use dulu, sehingga app.get belum sempat jalan tapi hasil sudah keluar dari app.use
 app.use("/", (req, res) => {
