@@ -1,0 +1,37 @@
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-8">
+      <h2>Daftar Contacts</h2>
+      <table class="table table-bg-transparent table-hover mt-md-5">
+        <thead>
+          <tr>
+            <th scope="col">No.</th>
+            <th scope="col">Nama</th>
+            <th scope="col">Handphone no</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (contacts.length === 0) { %>
+          <div class="alert alert-danger fw-bold" role="alert">
+            <center>DAFTAR KONTAK MASIH KOSONG</center>
+          </div>
+          <% } %> <% contacts.forEach((contact,i) => { %>
+          <tr>
+            <th scope="row"><%= i+1 %></th>
+            <td><%= contact.nama %></td>
+            <td><%= contact.nohp %></td>
+            <td>
+              <a
+                href="/contact/<%= contact.nama %>"
+                class="btn btn-success badge rounded-pill"
+                ><i class="bi bi-info-circle"></i> Details</a
+              >
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
