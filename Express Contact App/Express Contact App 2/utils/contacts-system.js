@@ -28,4 +28,41 @@ const findContact = (nama) => {
   return contact;
 };
 
-module.exports = { loadContacts, findContact };
+// menuliskan/menimpa file contacts.json dengan data yang baru
+const saveContacts = (contacts) => {
+  fs.writeFileSync("./data/contacts.json", JSON.stringify(contacts));
+};
+
+// menambahkan contact yang baru
+const addContact = (contact) => {
+  const contacts = loadContacts();
+  contacts.push(contact);
+  saveContacts(contacts);
+};
+
+// Check duplicate
+// const checkDuplicate = (nama) => {
+//   const contacts = loadContacts();
+//   return contacts.find((contact) => contact.nama === nama);
+// };
+
+const checkDuplicate = (nama) => {
+  const contacts = loadContacts();
+  return contacts.find((contact) => {
+    return contact.nama === nama;
+  });
+};
+
+const checkDuplicateEmail = (email) => {
+  const contacts = loadContacts();
+  return contacts.find((contact) => {
+    return contact.email === email;
+  });
+};
+module.exports = {
+  loadContacts,
+  findContact,
+  addContact,
+  checkDuplicate,
+  checkDuplicateEmail,
+};

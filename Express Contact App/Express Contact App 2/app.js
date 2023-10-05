@@ -1,16 +1,23 @@
 const express = require("express");
 const expressLayouts = require("express-ejs-layouts");
 const app = express();
-const { loadContacts, findContact } = require("./utils/contacts-system.js");
+const { body, validationResult, check } = require("express-validator");
+const {
+  loadContacts,
+  findContact,
+  addContact,
+  checkDuplicate,
+  checkDuplicateEmail,
+} = require("./utils/contacts-system.js");
 const port = 3000;
 
 //Gunakan EJS
 app.set("view engine", "ejs");
 app.use(expressLayouts);
-// app.use(morgan("dev"));
-
 //Built-in Middleware : Express static
 app.use(express.static("public"));
+//Built-in Middleware : Express urlencoded
+app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
   // res.sendFile('index.html',{root : __dirname});
@@ -46,6 +53,7 @@ app.get("/about", (req, res) => {
   });
 });
 
+// Halaman contact
 app.get("/contact", (req, res) => {
   const contacts = loadContacts();
 
@@ -56,6 +64,62 @@ app.get("/contact", (req, res) => {
   });
 });
 
+//Halaman Penambahan Contact
+app.get("/contact/add", (req, res) => {
+  res.render("add-contact", {
+    title: "Halaman Penambahan Contact",
+    layout: "layouts/main-layout",
+  });
+});
+
+// proses penambahaan contact
+app.post(
+  "/contact",
+  [
+    // Validator of Nama (Custome Validator)
+    body("nama").custom((value) => {
+      const duplicate = checkDuplicate(value);
+      if (duplicate) {
+        throw new Error(
+          `atas nama : ${value}, Sudah Terdaftar di System Contact!`
+        );
+      }
+      return true;
+    }),
+    // Validator of Email
+    body("email")
+      .custom((value) => {
+        const duplicate = checkDuplicateEmail(value);
+        if (duplicate) {
+          throw new Error(
+            `atas nama : ${value}, Sudah Terdaftar di System Contact!`
+          );
+        }
+        return true;
+      })
+      .isEmail()
+      .optional({ checkFalsy: true })
+      .normalizeEmail()
+      .withMessage("email yang anda masukan tidak valid"),
+
+    // Validator of Handphone number
+    check("nohp", "no Handphone yang anda masukan tidak valid").isMobilePhone(
+      "id-ID"
+    ),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    // console.log(req.body);
+    //res.send(req.body);
+    // addContact(req.body);
+    // res.redirect("/contact");
+  }
+);
+
+//Halaman detail Contact
 app.get("/contact/:nama", (req, res) => {
   const contact = findContact(req.params.nama);
 
