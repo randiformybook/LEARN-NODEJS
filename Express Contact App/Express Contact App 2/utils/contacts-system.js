@@ -46,7 +46,7 @@ const addContact = (contact) => {
 //   return contacts.find((contact) => contact.nama === nama);
 // };
 
-const checkDuplicate = (nama) => {
+const checkDuplicateNama = (nama) => {
   const contacts = loadContacts();
   return contacts.find((contact) => {
     return contact.nama === nama;
@@ -59,10 +59,17 @@ const checkDuplicateEmail = (email) => {
     return contact.email === email;
   });
 };
+const checkDuplicatePhone = (nohp) => {
+  const contacts = loadContacts();
+  return contacts.find((contact) => {
+    return contact.nohp === nohp;
+  });
+};
 module.exports = {
   loadContacts,
   findContact,
   addContact,
-  checkDuplicate,
+  checkDuplicateNama,
   checkDuplicateEmail,
+  checkDuplicatePhone,
 };

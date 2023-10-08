@@ -6,8 +6,9 @@ const {
   loadContacts,
   findContact,
   addContact,
-  checkDuplicate,
+  checkDuplicateNama,
   checkDuplicateEmail,
+  checkDuplicatePhone,
 } = require("./utils/contacts-system.js");
 const port = 3000;
 
@@ -78,7 +79,7 @@ app.post(
   [
     // Validator of Nama (Custome Validator)
     body("nama").custom((value) => {
-      const duplicate = checkDuplicate(value);
+      const duplicate = checkDuplicateNama(value);
       if (duplicate) {
         throw new Error(
           `atas nama : ${value}, Sudah Terdaftar di System Contact!`
@@ -92,7 +93,7 @@ app.post(
         const duplicate = checkDuplicateEmail(value);
         if (duplicate) {
           throw new Error(
-            `atas nama : ${value}, Sudah Terdaftar di System Contact!`
+            `email dengan nama ${value}, Sudah Terdaftar di System Contact!`
           );
         }
         return true;
@@ -103,9 +104,21 @@ app.post(
       .withMessage("email yang anda masukan tidak valid"),
 
     // Validator of Handphone number
-    check("nohp", "no Handphone yang anda masukan tidak valid").isMobilePhone(
-      "id-ID"
-    ),
+    body("nohp")
+      .custom((value) => {
+        const duplicate = checkDuplicatePhone(value);
+        if (duplicate) {
+          throw new Error(
+            `No HandPhone yang Anda masukan, Sudah Terdaftar di System Contact!`
+          );
+        }
+        return true;
+      })
+      .isMobilePhone()
+      .withMessage("No Handphone yang anda masukan tidak valid"),
+    //   check("nohp", "no Handphone yang anda masukan tidak valid").isMobilePhone(
+    //     "id-ID"
+    // ),
   ],
   (req, res) => {
     const errors = validationResult(req);
