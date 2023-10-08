@@ -1,6 +1,9 @@
 const express = require("express");
 const expressLayouts = require("express-ejs-layouts");
 const app = express();
+const session = require("express-session");
+const cookieParser = require("cookie-parser");
+const flash = require("connect-flash");
 const { body, validationResult, check } = require("express-validator");
 const {
   loadContacts,
@@ -19,6 +22,17 @@ app.use(expressLayouts);
 app.use(express.static("public"));
 //Built-in Middleware : Express urlencoded
 app.use(express.urlencoded({ extended: true }));
+//Flash Configuration
+app.use(cookieParser("secret"));
+app.use(
+  session({
+    secret: "secret",
+    resave: true,
+    saveUninitialized: true,
+    cookie: { maxAge: 6000 },
+  })
+);
+app.use(flash());
 
 app.get("/", (req, res) => {
   // res.sendFile('index.html',{root : __dirname});
@@ -62,6 +76,7 @@ app.get("/contact", (req, res) => {
     title: "Halaman Contact",
     layout: "layouts/main-layout",
     contacts,
+    msg: req.flash("msg"),
   });
 });
 
@@ -81,9 +96,7 @@ app.post(
     body("nama").custom((value) => {
       const duplicate = checkDuplicateNama(value);
       if (duplicate) {
-        throw new Error(
-          `atas nama : ${value}, Sudah Terdaftar di System Contact!`
-        );
+        throw new Error(`${value} sudah terdaftar di sistem Kontak!`);
       }
       return true;
     }),
@@ -92,9 +105,7 @@ app.post(
       .custom((value) => {
         const duplicate = checkDuplicateEmail(value);
         if (duplicate) {
-          throw new Error(
-            `email dengan nama ${value}, Sudah Terdaftar di System Contact!`
-          );
+          throw new Error(`email sudah terdaftar di sistem Kontak!`);
         }
         return true;
       })
@@ -109,7 +120,7 @@ app.post(
         const duplicate = checkDuplicatePhone(value);
         if (duplicate) {
           throw new Error(
-            `No HandPhone yang Anda masukan, Sudah Terdaftar di System Contact!`
+            `No HandPhone yang dimasukan sudah terdaftar di sistem Kontak!`
           );
         }
         return true;
@@ -123,12 +134,20 @@ app.post(
   (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      //   return res.status(400).json({ errors: errors.array() });
+      res.render("add-contact", {
+        title: "Halaman Penambahan Contact",
+        layout: "layouts/main-layout",
+        errors: errors.array(),
+      });
+    } else {
+      addContact(req.body);
+      // kirimkan flash message
+      req.flash("msg", "data Contact berhasil ditambahkan ke Daftar Kontak!");
+      res.redirect("/contact");
     }
     // console.log(req.body);
     //res.send(req.body);
-    // addContact(req.body);
-    // res.redirect("/contact");
   }
 );
 

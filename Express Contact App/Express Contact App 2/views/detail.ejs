@@ -1,12 +1,12 @@
 <div class="container mt-3">
   <div class="row">
     <div class="col-md-8">
-      <h2>Detail Contact</h2>
+      <h2>Detail Kontak</h2>
       <% if (!contact) { %>
       <div class="alert alert-danger fw-bold" role="alert">
-        Nama yang ada masukan tidak ada di Daftar Contact<br />
+        Nama yang ada masukan tidak ada di Daftar Kontak<br />
         <a href="/contact" class="alert-link fw-normal"
-          >&laquo; Back to Contacts</a
+          >&laquo; Kembali ke Halaman Kontak</a
         >.
       </div>
       <% } else { %>
@@ -17,7 +17,9 @@
             <%= contact.nohp %>
           </h6>
           <p class="card-text"><%= contact.email %></p>
-          <a href="/contact" class="card-link">&laquo; Back to Contact</a>
+          <a href="/contact" class="card-link"
+            >&laquo; Kembali ke Halaman Kontak</a
+          >
         </div>
       </div>
       <% } %>
