@@ -12,6 +12,8 @@ const {
   checkDuplicateNama,
   checkDuplicateEmail,
   checkDuplicatePhone,
+  deleteContact,
+  updateContacts,
 } = require("./utils/contacts-system.js");
 const port = 3000;
 
@@ -148,6 +150,89 @@ app.post(
     }
     // console.log(req.body);
     //res.send(req.body);
+  }
+);
+
+// Proses delete Contact
+app.get("/contact/delete/:nama", (req, res) => {
+  const contact = findContact(req.params.nama);
+
+  // Jika kontak tidak ada
+  if (!contact) {
+    res.status(404);
+    res.send("<h1>404</h1>");
+  } else {
+    deleteContact(req.params.nama);
+    req.flash("msg", "data Contact berhasil dihapus dari Daftar Kontak!");
+    res.redirect("/contact");
+  }
+});
+
+//Halaman Perubahaan Contact
+app.get("/contact/edit/:nama", (req, res) => {
+  const contact = findContact(req.params.nama);
+  res.render("edit-contact", {
+    title: "Halaman Perubahaan Contact",
+    layout: "layouts/main-layout",
+    contact,
+  });
+});
+
+// proses Update/ Perubahaan Data
+app.post(
+  "/contact/update",
+  [
+    // Validator of Nama (Custome Validator)
+    body("nama").custom((value, { req }) => {
+      const duplicate = checkDuplicateNama(value);
+      if (value !== req.body.oldNama && duplicate) {
+        throw new Error(`${value} sudah terdaftar di sistem Kontak!`);
+      }
+      return true;
+    }),
+    // Validator of Email
+    body("email")
+      .custom((value, { req }) => {
+        const duplicate = checkDuplicateEmail(value);
+        if (value !== req.body.oldEmail && duplicate) {
+          throw new Error(`email sudah terdaftar di sistem Kontak!`);
+        }
+        return true;
+      })
+      .isEmail()
+      .optional({ checkFalsy: true })
+      .normalizeEmail()
+      .withMessage("email yang anda masukan tidak valid"),
+
+    // Validator of Handphone number
+    body("nohp")
+      .custom((value, { req }) => {
+        const duplicate = checkDuplicatePhone(value);
+        if (value !== req.body.oldNohp && duplicate) {
+          throw new Error(
+            `No HandPhone yang dimasukan sudah terdaftar di sistem Kontak!`
+          );
+        }
+        return true;
+      })
+      .isMobilePhone()
+      .withMessage("No Handphone yang anda masukan tidak valid"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.render("edit-contact", {
+        title: "Halaman Ubah Data Contact",
+        layout: "layouts/main-layout",
+        errors: errors.array(),
+        contact: req.body,
+      });
+    } else {
+      updateContacts(req.body);
+      // kirimkan flash message
+      req.flash("msg", "data Contact berhasil diupdate di Daftar Kontak!");
+      res.redirect("/contact");
+    }
   }
 );
 

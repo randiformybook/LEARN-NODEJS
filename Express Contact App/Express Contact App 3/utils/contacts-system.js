@@ -33,6 +33,17 @@ const saveContacts = (contacts) => {
   fs.writeFileSync("./data/contacts.json", JSON.stringify(contacts));
 };
 
+const sortContacts = (contacts) => {
+  contacts.sort((a, b) => {
+    const namaA = a.nama.toLowerCase();
+    const namaB = b.nama.toLowerCase();
+
+    if (namaA < namaB) return -1;
+    if (namaA > namaB) return 1;
+    return 0;
+  });
+};
+
 // menambahkan contact yang baru
 const addContact = (contact) => {
   const contacts = loadContacts();
@@ -65,6 +76,29 @@ const checkDuplicatePhone = (nohp) => {
     return contact.nohp === nohp;
   });
 };
+
+const deleteContact = (nama) => {
+  const contacts = loadContacts();
+  const filterContacts = contacts.filter((contact) => contact.nama !== nama);
+  saveContacts(filterContacts);
+};
+
+//mengubah contacts
+const updateContacts = (newContact) => {
+  const contacts = loadContacts();
+  //hilangkan contact lama yang sama dengan old nama
+  const filterContacts = contacts.filter(
+    (contact) => contact.nama !== newContact.oldNama
+  );
+  delete newContact.oldNama;
+  delete newContact.oldNohp;
+  delete newContact.oldEmail;
+
+  filterContacts.push(newContact);
+  sortContacts(filterContacts);
+  saveContacts(filterContacts);
+};
+
 module.exports = {
   loadContacts,
   findContact,
@@ -72,4 +106,6 @@ module.exports = {
   checkDuplicateNama,
   checkDuplicateEmail,
   checkDuplicatePhone,
+  deleteContact,
+  updateContacts,
 };
