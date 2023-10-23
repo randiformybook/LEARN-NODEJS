@@ -121,14 +121,14 @@ async function connectDB() {
     // );
     // console.log(updateMany);
 
-    const deleteOne = await collection.deleteOne({
-      nama: "Semarang",
-    });
-    if (deleteOne.deletedCount === 1) {
-      console.log("Document is Deleted!");
-    } else {
-      console.log("File is not Found!");
-    }
+    // const deleteOne = await collection.deleteOne({
+    //   nama: "Semarang",
+    // });
+    // if (deleteOne.deletedCount === 1) {
+    //   console.log("Document is Deleted!");
+    // } else {
+    //   console.log("File is not Found!");
+    // }
   } finally {
     await client.close();
   }

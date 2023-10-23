@@ -1,0 +1,14 @@
+body {
+  font-family: "Roboto", sans-serif;
+  font-weight: 500;
+}
+
+h2.contact-list {
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+form {
+  font-weight: 700;
+}

@@ -1,0 +1,76 @@
+<div class="container mt-3">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="contact-list">Form Edit Contact List</h2>
+
+      <% if (typeof errors != "undefined") { %>
+      <div class="alert alert-danger" role="alert">
+        <ul>
+          <% errors.forEach((error) => { %>
+          <li><%= error.msg %></li>
+          <% }) %>
+        </ul>
+      </div>
+      <% } %>
+
+      <form method="post" action="/contact/update">
+        <!-- Label Nama -->
+        <input
+          type="hidden"
+          name="oldNama"
+          value="<%= (contact.oldNama) ? contact.oldNama : contact.nama %>"
+        />
+        <input
+          type="hidden"
+          name="oldNohp"
+          value="<%= (contact.oldNohp) ? contact.oldNohp : contact.nohp %>"
+        />
+        <input
+          type="hidden"
+          name="oldEmail"
+          value="<%= (contact.oldEmail) ? contact.oldEmail : contact.email %>"
+        />
+
+        <div class="mb-3">
+          <label for="nama" class="form-label">Masukan Nama</label>
+          <input
+            type="text"
+            class="form-control"
+            id="nama"
+            name="nama"
+            placeholder=" Masukan Nama Contact"
+            required
+            value="<%= contact.nama %>"
+          />
+        </div>
+        <!-- Label No HP -->
+        <div class="mb-3">
+          <label for="nohp" class="form-label">Masukan No HP</label>
+          <input
+            type="text"
+            class="form-control"
+            id="nohp"
+            name="nohp"
+            placeholder=" Masukan No HP Contact"
+            required
+            value="<%= contact.nohp %>"
+          />
+        </div>
+        <!-- Label Email -->
+        <div class="mb-3">
+          <label for="email" class="form-label">Masukan Email</label>
+          <input
+            type="email"
+            class="form-control"
+            id="email"
+            name="email"
+            placeholder=" Masukan Email Contact (Optional)"
+            value="<%= contact.email %>"
+          />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update</button>
+      </form>
+    </div>
+  </div>
+</div>
