@@ -12,7 +12,7 @@ const port = 3000;
 // ---------------------------------------------
 // Mongoose.connect =>
 const mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost:27017/MongoDB-Learn");
+mongoose.connect("mongodb://127.0.0.1:27017/MongoDB-Learn");
 // require("./utils/db.js");
 // ---------------------------------------------
 //Schema
@@ -78,7 +78,7 @@ app.get("/contact", (req, res) => {
   Contact.find({}).then((result) => {
     res.send(result);
   });
-  // res.render("contact", {
+  // res.render("C", {
   //   title: "Halaman Contact",
   //   layout: "layouts/main-layout",
   //   contacts,

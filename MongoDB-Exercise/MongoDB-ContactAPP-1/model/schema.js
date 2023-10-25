@@ -9,4 +9,4 @@ let userSchema = new Schema({
 
 const Contact = mongoose.model("Contact", userSchema, "Learn-1");
 
-module.exports = { Contact };
+module.exports = Contact;
