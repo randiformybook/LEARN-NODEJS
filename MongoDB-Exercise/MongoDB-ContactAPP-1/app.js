@@ -16,7 +16,7 @@ const port = 3000;
 require("./utils/db.js");
 // ---------------------------------------------
 //Schema
-const Contact = require("./model/schema.js");
+const { Contact } = require("./model/schema.js");
 // ---------------------------------------------
 // setup EJS
 app.set("view engine", "ejs");
@@ -39,6 +39,7 @@ app.use(
 app.use(flash());
 // ---------------------------------------------
 
+// -------------------------------------------------
 //Halaman HOME
 app.get("/", (req, res) => {
   const mahasiswa = [
@@ -65,6 +66,7 @@ app.get("/", (req, res) => {
   });
 });
 
+// -------------------------------------------------
 // Halaman ABOUT
 app.get("/about", (req, res) => {
   res.render("about", {
@@ -73,17 +75,80 @@ app.get("/about", (req, res) => {
   });
 });
 
+// -------------------------------------------------
 // Halaman CONTACT
-app.get("/contact", (req, res) => {
-  Contact.find({}).then((result) => {
-    res.send(result);
-  });
-  // res.render("C", {
-  //   title: "Halaman Contact",
-  //   layout: "layouts/main-layout",
-  //   contacts,
-  //   msg: req.flash("msg"),
+app.get("/contact", async (req, res) => {
+  // Contact.find({}).then((result) => {
+  //   res.send(result);
   // });
+
+  const contacts = await Contact.find({});
+
+  contacts.sort((a, b) => {
+    const namaA = a.nama.toLowerCase();
+    const namaB = b.nama.toLowerCase();
+
+    if (namaA < namaB) return -1;
+    if (namaA > namaB) return 1;
+    return 0;
+  });
+
+  res.render("Contact", {
+    title: "Halaman Contact",
+    layout: "layouts/main-layout",
+    contacts,
+    msg: req.flash("msg"),
+  });
+});
+
+//
+//Halaman Penambahan Contact
+app.get("/contact/add", (req, res) => {
+  res.render("add-contact", {
+    title: "Halaman Penambahan Contact",
+    layout: "layouts/main-layout",
+  });
+});
+
+// -------------------------------------------------
+// proses penambahaan contact
+app.post("/contact", async (req, res) => {
+  const { nama, nohp, email } = req.body;
+  try {
+    if (email !== "undefined") {
+      const newContact = new Contact({ nama, nohp, email });
+      await newContact.validate();
+      console.log("Berhasil tervalidasi");
+      // Menyimpan data ke database dengan promise
+      // await newContact.save();
+      // console.log("Berhasil menyimpan data");
+      res.redirect("/contact");
+    } else {
+      const newContact = new Contact({ nama, nohp });
+      await newContact.validate();
+      console.log("Berhasil tervalidasi");
+      res.redirect("/contact");
+    }
+  } catch (err) {
+    // Menangani error yang terjadi saat validasi atau penyimpanan data
+    console.error("Gagal menyimpan data");
+    console.error(err);
+    res.status(500).send("Terjadi kesalahan");
+  }
+});
+
+// -------------------------------------------------
+
+// ----------------------------------------------
+//Halaman detail Contact
+app.get("/contact/:nama", async (req, res) => {
+  const contact = await Contact.findOne({ nama: req.params.nama });
+
+  res.render("detail", {
+    title: "Halaman Detail Contact",
+    layout: "layouts/main-layout",
+    contact,
+  });
 });
 
 app.use("/", (req, res) => {
