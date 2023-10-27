@@ -27,9 +27,14 @@ let userSchema = new Schema({
   },
   email: {
     type: String,
+    lowercase: true,
+    required: false,
     unique: [true, "Email yang anda masukan sudah terdaftar"],
     validate: {
       validator: (value) => {
+        if (value === "") {
+          return true;
+        }
         return /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(value);
       },
       message: "Email yang anda masukan tidak valid",
