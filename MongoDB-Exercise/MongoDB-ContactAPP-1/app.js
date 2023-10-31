@@ -1,6 +1,7 @@
 // Express view Engine require
 const express = require("express");
 const expressLayouts = require("express-ejs-layouts");
+const { body, validationResult } = require("express-validator");
 // --------------------------------------------
 //flash required
 const session = require("express-session");
@@ -112,26 +113,48 @@ app.get("/contact/add", (req, res) => {
 
 // -------------------------------------------------
 // proses penambahaan contact
-app.post("/contact", async (req, res) => {
-  // ambil {nama,nohp,email} dari req.body
-  const { nama, nohp, email } = req.body;
-  try {
-    // instance ke variable newContact dengan menjalankan new contact(mongose model) yang isi sesuai dengan yang di input
-    const newContact = new Contact({ nama, nohp, email });
-    // validasi nama,nohp dan email sesuai validator yang dibuat
-    await newContact.validate();
-    // save ke data ke mongodb
-    await newContact.save();
-    // setelah validator jalankan flash dan kembali ke halaman kontak
-    req.flash("msg", "data Contact berhasil ditambahkan ke Daftar Kontak!");
-    res.redirect("/contact");
-  } catch (err) {
-    // Menangani error yang terjadi saat validasi atau penyimpanan data
-    console.error("Gagal menyimpan data");
-    console.error(err);
-    res.status(500).send("Terjadi kesalahan");
+app.post(
+  "/contact",
+  // validasi email, apakah email already exist or not
+  // [
+  //   body("email")
+  //     // .custom(async (value) => {
+  //     //   const checkDuplicate = await Contact.findOne(value);
+  //     //   if (typeof checkDuplicate === "object" && checkDuplicate !== "")
+  //     //     throw new Error("Email yang anda masukan sudah ada");
+  //     //   return true;
+  //     // })
+  //     .isEmail()
+  //     .optional({ checkFalsy: true })
+  //     .normalizeEmail()
+  //     .withMessage("email yang anda masukan tidak valid"),
+  // ],
+  async (req, res) => {
+    // ambil {nama,nohp,email} dari req.body
+    const { nama, nohp, email } = req.body;
+
+    try {
+      // instance ke variable newContact dengan menjalankan new contact(mongose model) yang isi sesuai dengan yang di input
+      const newContact = new Contact({ nama, nohp, email });
+      const contactEmail = newContact.email;
+
+      // const checkDuplicate = await Contact.findOne(contactEmail);
+      // if (checkDuplicate && checkDuplicate !== "") throw new Error("yes");
+      // else return true;
+      // validasi nama,nohp dan email sesuai validator yang dibuat
+      await newContact.validate();
+      // save ke data ke mongodb
+      // await newContact.save();
+      res.send(req.body);
+      // setelah validator jalankan flash dan kembali ke halaman kontak
+      // req.flash("msg", "data Contact berhasil ditambahkan ke Daftar Kontak!");
+      // res.redirect("/contact");
+    } catch (err) {
+      // Menangani error yang terjadi saat validasi atau penyimpanan data
+      console.error(`Gagal menyimpan data: ${err}`);
+    }
   }
-});
+);
 
 // -------------------------------------------------
 

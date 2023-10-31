@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const Schema = mongoose.Schema;
 let userSchema = new Schema({
@@ -25,21 +26,21 @@ let userSchema = new Schema({
       message: "No HP yang anda masukan tidak valid",
     },
   },
-  email: {
-    type: String,
-    lowercase: true,
-    required: false,
-    unique: [true, "Email yang anda masukan sudah terdaftar"],
-    validate: {
-      validator: (value) => {
-        if (value === "") {
-          return true;
-        }
-        return /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(value);
-      },
-      message: "Email yang anda masukan tidak valid",
-    },
-  },
+
+  // email: {
+  //   type: String,
+  //   // unique: false,
+  //   // lowercase: true,
+  //   required: false,
+  //   // sparse: true,
+  //   validate: {
+  //     validator: (value) => {
+  //       return /^(|undefined|[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})$/.test(
+  //         value
+  //       );
+  //     },
+  //   },
+  // },
 });
 
 const Contact = mongoose.model("Contact", userSchema, "Learn-1");
