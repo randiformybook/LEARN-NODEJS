@@ -113,31 +113,27 @@ app.get("/contact/add", (req, res) => {
 // -------------------------------------------------
 // proses penambahaan contact
 app.post("/contact", async (req, res) => {
-  // ambil {nama,nohp,email} dari req.body
   const { nama, nohp, email } = req.body;
-
   try {
-    // instance ke variable newContact dengan menjalankan new contact(mongose model) yang isi sesuai dengan yang di input
-    const newContact = new Contact({ nama, nohp, email });
-    // validasi email
-    const duplicate = await Contact.findOne({ email: newContact.email });
-    if (duplicate && duplicate.email !== undefined && duplicate.email !== "") {
-      console.log("Ada duplicate");
-      return false;
+    if (email !== "undefined") {
+      const newContact = new Contact({ nama, nohp, email });
+      await newContact.validate();
+      console.log("Berhasil tervalidasi");
+      // Menyimpan data ke database dengan promise
+      // await newContact.save();
+      // console.log("Berhasil menyimpan data");
+      res.redirect("/contact");
+    } else {
+      const newContact = new Contact({ nama, nohp });
+      await newContact.validate();
+      console.log("Berhasil tervalidasi");
+      res.redirect("/contact");
     }
-    // validasi nama,nohp dan email sesuai validator yang dibuat
-    await newContact.validate();
-    res.send(req.body);
-
-    // // save ke data ke mongodb
-    // await newContact.save();
-
-    // // setelah validator jalankan flash dan kembali ke halaman kontak
-    // req.flash("msg", "data Contact berhasil ditambahkan ke Daftar Kontak!");
-    // res.redirect("/contact");
   } catch (err) {
     // Menangani error yang terjadi saat validasi atau penyimpanan data
-    console.error(`Gagal menyimpan data: ${err}`);
+    console.error("Gagal menyimpan data");
+    console.error(err);
+    res.status(500).send("Terjadi kesalahan");
   }
 });
 
