@@ -132,7 +132,6 @@ app.post("/contact", async (req, res) => {
     });
     // check ada email yang di duplicate
     if (duplicate && duplicate.email !== undefined && duplicate.email !== "") {
-      console.log("Ada duplicate");
       return false;
     }
     // validasi nama,nohp dan email sesuai validator yang dibuat
@@ -147,6 +146,23 @@ app.post("/contact", async (req, res) => {
   } catch (err) {
     // Menangani error yang terjadi saat validasi atau penyimpanan data
     console.error(`Gagal menyimpan data: ${err}`);
+  }
+});
+
+// -------------------------------------------------
+// Delete Contact
+app.get("/contact/delete/:nama", async (req, res) => {
+  const contact = await Contact.findOne({ nama: req.params.nama });
+  const contactID = contact._id;
+
+  // Jika kontak tidak ada
+  if (!contact) {
+    res.status(404);
+    res.send("<h1>404</h1>");
+  } else {
+    contact.deleteOne({ _id: contactID });
+    req.flash("msg", `${contact.nama} berhasil dihapus dari Daftar Kontak!`);
+    res.redirect("/contact");
   }
 });
 
