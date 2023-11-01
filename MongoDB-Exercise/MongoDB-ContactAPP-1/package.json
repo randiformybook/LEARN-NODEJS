@@ -20,6 +20,7 @@
     "flash": "^1.1.0",
     "mongodb": "^6.2.0",
     "mongoose": "^7.6.3",
+    "mongoose-unique-validator": "^4.0.0",
     "nodemon": "^3.0.1",
     "validator": "^13.11.0"
   }
