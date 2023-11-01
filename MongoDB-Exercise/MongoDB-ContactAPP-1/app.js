@@ -154,7 +154,6 @@ app.post("/contact", async (req, res) => {
 app.get("/contact/delete/:nama", async (req, res) => {
   const contact = await Contact.findOne({ nama: req.params.nama });
   const contactID = contact._id;
-
   // Jika kontak tidak ada
   if (!contact) {
     res.status(404);
@@ -167,7 +166,28 @@ app.get("/contact/delete/:nama", async (req, res) => {
 });
 
 // -------------------------------------------------
+// Halaman perubahaan Contact
+app.get("/contact/edit/:nama", async (req, res) => {
+  // const { nama, nohp, email } = await Contact.findOne(req.params.nama);
 
+  try {
+    // mencari contact list yang akan diubah/update
+    const contact = await Contact.findOne({ nama: req.params.nama });
+    console.log(contact);
+    if (!contact)
+      throw new Error(
+        res.status(404).send("<h1>Error : 404, Kontak tidak ditemukan</h1>")
+      );
+    res.render("edit-contact", {
+      title: "Edit Data Contact",
+      layout: "layouts/main-layout",
+      contact,
+    });
+  } catch (err) {
+    console.error(`Gagal mengambil data: ${err}`);
+    res.status(500).send("Terjadi kesalahan saat mengambil data.");
+  }
+});
 // ----------------------------------------------
 //Halaman detail Contact
 app.get("/contact/:nama", async (req, res) => {
