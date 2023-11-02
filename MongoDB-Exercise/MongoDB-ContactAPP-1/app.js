@@ -18,6 +18,10 @@ require("./utils/db.js");
 //Schema
 const { Contact } = require("./model/schema.js");
 // ---------------------------------------------
+// mongoose-unique-validator
+const uniqueValidator = require("mongoose-unique-validator");
+// ---------------------------------------------
+
 // setup EJS
 app.set("view engine", "ejs");
 // third party middlewate
@@ -166,7 +170,7 @@ app.get("/contact/delete/:nama", async (req, res) => {
 });
 
 // -------------------------------------------------
-// Halaman perubahaan Contact
+// Halaman perubahaan/ update Contact
 app.get("/contact/edit/:nama", async (req, res) => {
   // const { nama, nohp, email } = await Contact.findOne(req.params.nama);
 
@@ -187,6 +191,40 @@ app.get("/contact/edit/:nama", async (req, res) => {
     console.error(`Gagal mengambil data: ${err}`);
     res.status(500).send("Terjadi kesalahan saat mengambil data.");
   }
+});
+// ----------------------------------------------
+// proses update contact
+app.post("/contact/update", async (req, res) => {
+  const { _id, nama, nohp, email } = req.body;
+  try {
+    const existingContact = await Contact.findOne({ noID: _id });
+    const newNama = nama.toUpperCase();
+    const newEmail = email.toLowerCase();
+    const newHp = nohp;
+    // jika contact sudah ada dengan sama nomor ID
+    if (existingContact.nama !== newNama) {
+      existingContact.nama = newNama;
+    }
+    if (existingContact.nohp !== newHp) {
+      existingContact.nohp = newHp;
+    }
+    if (existingContact.email !== newEmail) {
+      existingContact.email = newEmail;
+    }
+
+    // validasi email
+    const duplicate = await Contact.findOne({ email });
+    // check ada email yang di duplicate
+    if ((duplicate && duplicate._id !== _id) || duplicate !== "")
+      console.log("ada duplikat");
+    // // if (duplicate && duplicate.email !== undefined && duplicate.email !== "") {
+    // //   return false;
+    // // }
+
+    // validasi nama,nohp dan email sesuai validator yang dibuat
+    await existingContact.validate();
+    res.send(existingContact);
+  } catch (err) {}
 });
 // ----------------------------------------------
 //Halaman detail Contact
