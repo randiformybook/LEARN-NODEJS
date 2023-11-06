@@ -14,12 +14,13 @@ const port = 3000;
 // const mongoose = require("mongoose");
 // mongoose.connect("mongodb://127.0.0.1:27017/MongoDB-Learn");
 require("./utils/db.js");
+const db = "MongoDB-Learn";
 // ---------------------------------------------
 //Schema
 const { Contact } = require("./model/schema.js");
 // ---------------------------------------------
 // mongoose-unique-validator
-const uniqueValidator = require("mongoose-unique-validator");
+// const uniqueValidator = require("mongoose-unique-validator");
 // ---------------------------------------------
 
 // setup EJS
@@ -89,8 +90,8 @@ app.get("/contact", async (req, res) => {
   const contacts = await Contact.find({});
 
   contacts.sort((a, b) => {
-    const namaA = a.nama.toLowerCase();
-    const namaB = b.nama.toLowerCase();
+    const namaA = a.nama.toUpperCase();
+    const namaB = b.nama.toUpperCase();
 
     if (namaA < namaB) return -1;
     if (namaA > namaB) return 1;
@@ -141,10 +142,10 @@ app.post("/contact", async (req, res) => {
     // validasi nama,nohp dan email sesuai validator yang dibuat
     await newContact.validate();
 
-    // // save ke data ke mongodb
+    // save ke data ke mongodb
     await newContact.save();
 
-    // // setelah validator jalankan flash dan kembali ke halaman kontak
+    // setelah validator jalankan flash dan kembali ke halaman kontak
     req.flash("msg", "data Contact berhasil ditambahkan ke Daftar Kontak!");
     res.redirect("/contact");
   } catch (err) {
@@ -177,7 +178,7 @@ app.get("/contact/edit/:nama", async (req, res) => {
   try {
     // mencari contact list yang akan diubah/update
     const contact = await Contact.findOne({ nama: req.params.nama });
-    console.log(contact);
+
     if (!contact)
       throw new Error(
         res.status(404).send("<h1>Error : 404, Kontak tidak ditemukan</h1>")
@@ -197,34 +198,49 @@ app.get("/contact/edit/:nama", async (req, res) => {
 app.post("/contact/update", async (req, res) => {
   const { _id, nama, nohp, email } = req.body;
   try {
-    const existingContact = await Contact.findOne({ noID: _id });
     const newNama = nama.toUpperCase();
     const newEmail = email.toLowerCase();
     const newHp = nohp;
-    // jika contact sudah ada dengan sama nomor ID
-    if (existingContact.nama !== newNama) {
-      existingContact.nama = newNama;
-    }
-    if (existingContact.nohp !== newHp) {
-      existingContact.nohp = newHp;
-    }
-    if (existingContact.email !== newEmail) {
-      existingContact.email = newEmail;
+    const theID = _id;
+
+    const duplicate = await Contact.findOne({ email: newEmail });
+    console.log(duplicate);
+    if (duplicate && duplicate.email) {
+      if (duplicate._id !== theID) throw new Error("Ada Duplicate");
+      else return true;
     }
 
-    // validasi email
-    const duplicate = await Contact.findOne({ email });
-    // check ada email yang di duplicate
-    if ((duplicate && duplicate._id !== _id) || duplicate !== "")
-      console.log("ada duplikat");
-    // // if (duplicate && duplicate.email !== undefined && duplicate.email !== "") {
-    // //   return false;
-    // // }
+    await Contact.findOneAndUpdate(
+      { nama: nama },
+      {
+        _id: theID,
+        nama: newNama,
+        email: newEmail,
+        nohp: newHp,
+      },
+      {
+        new: true,
+        upsert: true,
+      }
+    );
 
-    // validasi nama,nohp dan email sesuai validator yang dibuat
-    await existingContact.validate();
-    res.send(existingContact);
-  } catch (err) {}
+    // setelah validator jalankan flash dan kembali ke halaman kontak
+    req.flash("msg", "data Contact berhasil diupdate ke Daftar Kontak!");
+    res.redirect("/contact");
+  } catch (err) {
+    console.error(`Gagal menyimpan data: ${err}`);
+
+    if (err.code === 11000) {
+      // kesalahan duplikat kunci, berarti ada kontak lain yang memiliki nama, nohp, dan email yang sama
+      res.status(409).send("Kontak sudah ada.");
+    } else if (err.name === "ValidationError") {
+      // kesalahan validasi, berarti ada data yang tidak memenuhi skema
+      res.status(400).send("Data tidak valid.");
+    } else {
+      // kesalahan lain, berarti ada masalah dengan server atau database
+      res.status(500).send("Terjadi kesalahan saat memperbarui kontak.");
+    }
+  }
 });
 // ----------------------------------------------
 //Halaman detail Contact
