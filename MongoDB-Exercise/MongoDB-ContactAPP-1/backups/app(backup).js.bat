@@ -117,7 +117,6 @@ app.get("/contact/add", (req, res) => {
 
 // -------------------------------------------------
 // proses penambahaan contact
-// ambil {nama,nohp,email} dari req.body
 app.post("/contact", async (req, res) => {
   // ambil {nama,nohp,email} dari req.body
   const { nama, nohp, email } = req.body;
@@ -195,7 +194,6 @@ app.get("/contact/edit/:nama", async (req, res) => {
   }
 });
 // ----------------------------------------------
-
 // proses update contact
 app.post("/contact/update", async (req, res) => {
   const { _id, nama, nohp, email } = req.body;
@@ -204,10 +202,6 @@ app.post("/contact/update", async (req, res) => {
     const newEmail = email.toLowerCase();
     const newHp = nohp;
     const theID = _id;
-
-    const duplicateEmail = Contact.findOne({ _id: theID });
-    if (duplicateEmail.email === "" || duplicateEmail.email === undefined)
-      return true;
 
     await Contact.findOneAndUpdate(
       { nama: nama },
@@ -241,7 +235,6 @@ app.post("/contact/update", async (req, res) => {
     }
   }
 });
-
 // ----------------------------------------------
 //Halaman detail Contact
 app.get("/contact/:nama", async (req, res) => {
