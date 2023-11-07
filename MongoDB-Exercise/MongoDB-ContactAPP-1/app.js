@@ -132,14 +132,14 @@ app.post("/contact", async (req, res) => {
       email: lowerEmail,
     });
 
-    // validasi email
-    const duplicate = await Contact.findOne({
-      email: newContact.email,
-    });
-    // check ada email yang di duplicate
-    if (duplicate && duplicate.email !== undefined && duplicate.email !== "") {
-      return false;
-    }
+    // // validasi email
+    // const duplicate = await Contact.findOne({
+    //   email: newContact.email,
+    // });
+    // // check ada email yang di duplicate
+    // if (duplicate && duplicate.email !== undefined && duplicate.email !== "") {
+    //   return false;
+    // }
     // validasi nama,nohp dan email sesuai validator yang dibuat
     await newContact.validate();
 
@@ -173,12 +173,12 @@ app.get("/contact/delete/:nama", async (req, res) => {
 
 // -------------------------------------------------
 // Halaman perubahaan/ update Contact
-app.get("/contact/edit/:nama", async (req, res) => {
+app.get("/contact/edit/:_id", async (req, res) => {
   // const { nama, nohp, email } = await Contact.findOne(req.params.nama);
 
   try {
     // mencari contact list yang akan diubah/update
-    const contact = await Contact.findOne({ nama: req.params.nama });
+    const contact = await Contact.findOne({ _id: req.params._id });
 
     if (!contact)
       throw new Error(
@@ -204,22 +204,20 @@ app.post("/contact/update", async (req, res) => {
     const newEmail = email.toLowerCase();
     const newHp = nohp;
     const theID = _id;
-
-    const duplicateEmail = Contact.findOne({ _id: theID });
-    if (duplicateEmail.email === "" || duplicateEmail.email === undefined)
-      return true;
+    console.log(newNama);
 
     await Contact.findOneAndUpdate(
-      { nama: nama },
+      { _id: theID },
       {
-        _id: theID,
         nama: newNama,
         email: newEmail,
         nohp: newHp,
       },
       {
         new: true,
-        upsert: true,
+        upsert: false,
+        omitUndefined: true,
+        returnDocument: "after",
       }
     );
 
