@@ -15,7 +15,7 @@
 
       <form method="post" action="/contact/update">
         <!-- Label Nama -->
-        <!-- <input
+        <input
           type="hidden"
           name="oldNama"
           value="<%= (contact.oldNama) ? contact.oldNama : contact.nama %>"
@@ -29,7 +29,7 @@
           type="hidden"
           name="oldEmail"
           value="<%= (contact.oldEmail) ? contact.oldEmail : contact.email %>"
-        /> -->
+        />
         <input type="hidden" name="contactID" value="<%= contact._id %>" />
 
         <div class="mb-3">

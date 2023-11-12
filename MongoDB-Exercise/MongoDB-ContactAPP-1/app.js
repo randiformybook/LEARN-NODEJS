@@ -14,7 +14,6 @@ const port = 3000;
 const mongoose = require("mongoose");
 // mongoose.connect("mongodb://127.0.0.1:27017/MongoDB-Learn");
 require("./utils/db.js");
-const db = mongoose.connection;
 // ---------------------------------------------
 //Schema
 const { Contact } = require("./model/schema.js");
@@ -122,26 +121,30 @@ app.post("/contact", async (req, res) => {
   // ambil {nama,nohp,email} dari req.body
   const { nama, nohp, email } = req.body;
   const upperNama = nama.toUpperCase();
-  const lowerEmail = email.toLowerCase();
+  const lowerEmail = email ? email.toLowerCase() : null;
 
   try {
-    // instance ke variable newContact dengan menjalankan new contact(mongose model) yang isi sesuai dengan yang di input
     const newContact = new Contact({
       nama: upperNama,
       nohp,
       email: lowerEmail,
     });
 
-    // // validasi email
-    // const duplicate = await Contact.findOne({
-    //   email: newContact.email,
-    // });
-    // // check ada email yang di duplicate
-    // if (duplicate && duplicate.email !== undefined && duplicate.email !== "") {
-    //   return false;
-    // }
-    // validasi nama,nohp dan email sesuai validator yang dibuat
-    await newContact.validate();
+    // Cek apakah ada duplikat email
+    const duplicate = await Contact.findOne({ email });
+
+    if (
+      (duplicate && duplicate.email === null) ||
+      (duplicate && duplicate.email === undefined) ||
+      (duplicate && duplicate.email === "")
+    ) {
+      await newContact.validate({ fields: [nama, nohp] });
+      console.log("yes");
+    } else {
+      // validasi nama,nohp dan email sesuai validator yang dibuat
+      await newContact.validate();
+      console.log("no");
+    }
 
     // save ke data ke mongodb
     await newContact.save();
@@ -152,6 +155,22 @@ app.post("/contact", async (req, res) => {
   } catch (err) {
     // Menangani error yang terjadi saat validasi atau penyimpanan data
     console.error(`Gagal menyimpan data: ${err}`);
+
+    if (err.code === 11000 && err.keyPattern.email) {
+      // kesalahan duplikat kunci, berarti ada kontak lain yang memiliki email yang sama
+      if (err.keyValue.email === null) {
+        // Kasus khusus jika terdapat duplikat kunci dengan email null (string kosong)
+        res.status(409).send("Email sudah digunakan.");
+      } else {
+        res.status(409).send("Email sudah digunakan.");
+      }
+    } else if (err.name === "ValidationError") {
+      // kesalahan validasi, berarti ada data yang tidak memenuhi skema
+      res.status(400).send("Data tidak valid.");
+    } else {
+      // kesalahan lain, berarti ada masalah dengan server atau database
+      res.status(500).send("Terjadi kesalahan saat menambahkan kontak.");
+    }
   }
 });
 
@@ -175,7 +194,6 @@ app.get("/contact/delete/:nama", async (req, res) => {
 // Halaman perubahaan/ update Contact
 app.get("/contact/edit/:_id", async (req, res) => {
   // const { nama, nohp, email } = await Contact.findOne(req.params.nama);
-
   try {
     // mencari contact list yang akan diubah/update
     const contact = await Contact.findOne({ _id: req.params._id });
@@ -203,8 +221,7 @@ app.post("/contact/update", async (req, res) => {
     const newNama = nama.toUpperCase();
     const newEmail = email.toLowerCase();
     const newHp = nohp;
-    const theID = _id;
-    console.log(newNama);
+    const theID = req.body.contactID;
 
     await Contact.findOneAndUpdate(
       { _id: theID },
@@ -218,6 +235,7 @@ app.post("/contact/update", async (req, res) => {
         upsert: false,
         omitUndefined: true,
         returnDocument: "after",
+        runValidators: true,
       }
     );
 
